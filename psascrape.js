@@ -3,14 +3,32 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 const leftpad = require('left-pad');
 const mysql = require('mysql');
-const connection = require('./psamacdb');
+const connection = require('./db');
 
 //  let logStream = fs.createWriteStream("PSAlogALLpart28.txt", {'flags': 'a'});
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
 
 function maybe() {
 
-let go = 26400000;
-let increment = 200000;
+let go = 27150000;
+let increment = 300000;
 let j = go - increment / 2;
 let je = go + increment / 2;
 let rate = 2000;
@@ -80,7 +98,8 @@ let getquery = connection.query(getsql, (err, result) => {
   });
   grouping = grouping.filter(function(element) {
     return element.length > cut; /////////////////////////////////////////////////////////////////////////////////////////////////////////
-  })
+  });
+  grouping = shuffle(grouping);
 
   missing = [].concat.apply([], grouping);
 
