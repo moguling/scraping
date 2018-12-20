@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 const leftpad = require('left-pad');
 const mysql = require('mysql');
-const connection = require('./db');
+const connection = require('./psamacdb');
 
 //  let logStream = fs.createWriteStream("PSAlogALLpart28.txt", {'flags': 'a'});
 function shuffle(array) {
@@ -25,14 +25,21 @@ function shuffle(array) {
   return array;
 }
 
+function getRandom(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
 function maybe() {
 
-let go = 27150000;
-let increment = 300000;
+var refreshID;
+let go = 28500000;
+let increment = 1000000;
 let j = go - increment / 2;
 let je = go + increment / 2;
-let rate = 2000;
-let cut = 3;
+//let rate = 2500;
+let cut = 10;
 
 let getsql = 'SELECT DISTINCT Field1 FROM psa.psa WHERE Field1 BETWEEN ' + j + ' AND ' + je + ';';
 let getquery = connection.query(getsql, (err, result) => {
@@ -103,10 +110,11 @@ let getquery = connection.query(getsql, (err, result) => {
 
   missing = [].concat.apply([], grouping);
 
-  console.log('missing length: ' + missing.length + '');
 
 
-  let refreshID = setInterval(function() {
+  let rate = getRandom(1500, 4000);
+  console.log('missing length: ' + missing.length + ', rate: ' + rate);
+  refreshID = setInterval(function() {
     //cut down MISSING
     // into groups
     //console.log(missing);
@@ -116,7 +124,7 @@ let getquery = connection.query(getsql, (err, result) => {
 
 
     let paddedID = leftpad(missing[nthis], 8, "0");
-    console.log(paddedID);
+
     rp("https://www.psacard.com/cert/" + paddedID + "/PSA")
 
       .then((html) => {
@@ -135,6 +143,7 @@ let getquery = connection.query(getsql, (err, result) => {
         });
 
         if (record.length > 0 && typeof record !== 'undefined') {
+          console.log(paddedID);
           //console.log('' + record[0] + '  ' + (missing.length - n) + '');
           if (record[4].includes('TCG')) {
             console.log(record);
@@ -158,6 +167,7 @@ let getquery = connection.query(getsql, (err, result) => {
             }
           })
         } else {
+          console.log(paddedID+'<----');
           let post = {
             Field1: missing[nthis],
             Field2: '',
@@ -192,16 +202,22 @@ let getquery = connection.query(getsql, (err, result) => {
           console.log('ON TO THE NEXT');
           clearInterval(refreshID);
           maybe();
+        }
 
-          if (missing.length == 0) {
-            console.log('NIGGA YOU DONE');
-            clearInterval(refreshID);
-            process.exit();
-          }
-
+        if (missing.length == 0) {
+          console.log('NIGGA YOU DONE');
+          clearInterval(refreshID);
+          process.exit();
         }
 
       })
+      .catch(function (err) {
+        console.log('err');
+        clearInterval(refreshID);
+        setTimeout(function(){
+          maybe();
+        }, 150000);
+      });
 
 
 
