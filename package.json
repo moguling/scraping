@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/moguling/scraping/issues"
   },
-  "homepage": "https://github.com/moguling/scraping#readme"
+  "homepage": "https://github.com/moguling/scraping#readme",
+  "dependencies": {
+    "puppeteer": "^1.11.0"
+  }
 }

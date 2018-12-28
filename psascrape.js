@@ -31,6 +31,8 @@ function getRandom(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
+
+
 function maybe() {
 
 var refreshID;
@@ -112,7 +114,7 @@ let getquery = connection.query(getsql, (err, result) => {
 
 
 
-  let rate = getRandom(1500, 4000);
+  let rate = 1500;//getRandom(1500, 4000);
   console.log('missing length: ' + missing.length + ', rate: ' + rate);
   refreshID = setInterval(function() {
     //cut down MISSING
@@ -212,11 +214,12 @@ let getquery = connection.query(getsql, (err, result) => {
 
       })
       .catch(function (err) {
+        let delay = 20*60*1000;
         console.log('err');
         clearInterval(refreshID);
         setTimeout(function(){
           maybe();
-        }, 150000);
+        }, delay);
       });
 
 

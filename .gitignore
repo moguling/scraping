@@ -1,3 +1,5 @@
 mbdb.*
 db.*
 psamacdb.*
+/node_modules
+/pronhub
